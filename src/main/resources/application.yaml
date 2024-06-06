@@ -1,0 +1,9 @@
+quarkus:
+  application:
+    name: json-to-json
+
+routes:
+  rest-path: "/accounts"
+  source-url: "http://localhost:9000/source"
+  transform-spec-url: "http://localhost:9000/transform-spec"
+  transformer: "jsonata"
