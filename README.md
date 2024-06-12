@@ -36,9 +36,22 @@ O arquivo `pom.xml` é usado para gerenciar as dependências e plugins do Maven 
 import jakarta.enterprise.context.ApplicationScoped;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.model.rest.RestBindingMode;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 @ApplicationScoped
 public class HomeRoute extends RouteBuilder {
+
+    @ConfigProperty(name = "routes.rest-path")
+    String restPath;
+
+    @ConfigProperty(name = "routes.source-url")
+    String sourceUrl;
+
+    @ConfigProperty(name = "routes.transform-spec-url")
+    String transformSpecUrl;
+
+    @ConfigProperty(name = "routes.transformer")
+    String transformer;
 
     @Override
     public void configure() {
@@ -46,16 +59,17 @@ public class HomeRoute extends RouteBuilder {
                 .component("platform-http")
                 .bindingMode(RestBindingMode.json);
 
-        rest("/accounts")
+        rest(restPath)
                 .get()
                 .to("direct:external");
 
         from("direct:external")
-            .to("http://localhost:9000/source?bridgeEndpoint=true&throwExceptionOnFailure=false")
+            .to(sourceUrl + "?bridgeEndpoint=true&throwExceptionOnFailure=false")
                 .unmarshal().json()
-                .toD("jsonata:http://localhost:9000/transform-spec");
+                .toD(transformer + ":" + transformSpecUrl);
     }
 }
+
 ```
 
 O arquivo `HomeRoute.java` define a rota Camel utilizada no projeto. Aqui está uma visão geral do que ele faz:
